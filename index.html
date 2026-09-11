@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Our Homie</title>
+<title>HomeSweetHome</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -261,7 +261,7 @@
       <div class="blob" style="width:110px;height:110px;background:#EA5C8A;font-size:30px;">☺</div>
       <div class="blob" style="width:70px;height:70px;background:#F4A24C;border-radius:16px;"></div>
     </div>
-    <h1 class="brand-title">Our Homie</h1>
+    <h1 class="brand-title">HomeSweetHome</h1>
     <p class="brand-tagline">จัดการบ้านของเราไปด้วยกัน ของใช้ ปฏิทิน อารมณ์ ออกกำลังกาย และเงินร่วม ในแอปเดียว</p>
     <div class="segmented">
       <button id="seg-signin" class="active" onclick="setAuthMode('signin')">เข้าสู่ระบบ</button>
@@ -383,11 +383,11 @@ const ICONS = {
 };
 
 const MOODS = [
-  { v:5, label:'มีความสุข', color:'#EA5C8A', bg:'var(--pink-bg)' },
-  { v:4, label:'สงบ',       color:'#8B6FD9', bg:'var(--lav-bg)' },
-  { v:3, label:'เศร้า',      color:'#4A90D9', bg:'var(--blue-bg)' },
-  { v:2, label:'หงุดหงิด',   color:'#E8722E', bg:'var(--peach-bg)' },
-  { v:1, label:'เหนื่อย',    color:'#E8A93E', bg:'var(--peach-bg)' },
+  { v:5, label:'มีความสุข', color:'#EA5C8A', bg:'var(--pink-bg)', emoji:'😄' },
+  { v:4, label:'สงบ',       color:'#8B6FD9', bg:'var(--lav-bg)', emoji:'😌' },
+  { v:3, label:'เศร้า',      color:'#4A90D9', bg:'var(--blue-bg)', emoji:'😢' },
+  { v:2, label:'หงุดหงิด',   color:'#E8722E', bg:'var(--peach-bg)', emoji:'😠' },
+  { v:1, label:'เหนื่อย',    color:'#E8A93E', bg:'var(--peach-bg)', emoji:'🥱' },
 ];
 function moodInfo(v){ return MOODS.find(m=>m.v===v); }
 
@@ -596,7 +596,7 @@ async function renderHome(){
 
   const moodHTML = MOODS.map(m=>`
     <div class="mood-item">
-      <button class="mood-btn ${todayMood?.mood_rating===m.v?'active':''}" style="background:${m.bg};" onclick="setMood(${m.v})"></button>
+      <button class="mood-btn ${todayMood?.mood_rating===m.v?'active':''}" style="background:${m.bg};" onclick="setMood(${m.v})">${m.emoji}</button>
       <div class="lbl">${m.label}</div>
     </div>`).join('');
 
@@ -766,12 +766,12 @@ async function renderCalMood(){
 
   const pickerHTML = MOODS.map(m=>`
     <div class="mood-item">
-      <button class="mood-btn ${todayMood?.mood_rating===m.v?'active':''}" style="background:${m.bg};" onclick="setMood(${m.v})"></button>
+      <button class="mood-btn ${todayMood?.mood_rating===m.v?'active':''}" style="background:${m.bg};" onclick="setMood(${m.v})">${m.emoji}</button>
       <div class="lbl">${m.label}</div>
     </div>`).join('');
 
   const echoHTML = todayMood ? (()=>{ const info=moodInfo(todayMood.mood_rating);
-    return `<div class="mood-echo"><div class="dot-lg" style="background:${info.bg};"></div>
+    return `<div class="mood-echo"><div class="dot-lg" style="background:${info.bg}; display:flex; align-items:center; justify-content:center; font-size:18px;">${info.emoji}</div>
       <div><b>${profile?.display_name}</b> รู้สึก <b style="color:${info.color};">${info.label}</b><div class="muted">${todayMood.log_date}</div></div></div>`;
   })() : '';
 
@@ -786,7 +786,7 @@ async function renderCalMood(){
 
   const recent = (allMoods||[]).sort((a,b)=>b.log_date.localeCompare(a.log_date)).slice(0,8);
   const recentHTML = recent.length ? recent.map(m=>{ const info=moodInfo(m.mood_rating);
-    return `<div class="list-item"><div class="li-icon" style="background:${info.bg}; color:${info.color};">●</div>
+    return `<div class="list-item"><div class="li-icon" style="background:${info.bg}; color:${info.color}; font-size:16px;">${info.emoji}</div>
       <div class="li-main"><span class="li-title">${profile?.display_name} รู้สึก ${info.label}</span><span class="li-sub">${m.log_date}</span></div></div>`;
   }).join('') : `<div class="empty-state">ยังไม่มีบันทึกอารมณ์</div>`;
 
