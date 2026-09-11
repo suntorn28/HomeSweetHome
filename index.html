@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>HomeSweetHome</title>
+<title>Our Homie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -261,7 +261,7 @@
       <div class="blob" style="width:110px;height:110px;background:#EA5C8A;font-size:30px;">☺</div>
       <div class="blob" style="width:70px;height:70px;background:#F4A24C;border-radius:16px;"></div>
     </div>
-    <h1 class="brand-title">HomeSweetHome</h1>
+    <h1 class="brand-title">Our Homie</h1>
     <p class="brand-tagline">จัดการบ้านของเราไปด้วยกัน ของใช้ ปฏิทิน อารมณ์ ออกกำลังกาย และเงินร่วม ในแอปเดียว</p>
     <div class="segmented">
       <button id="seg-signin" class="active" onclick="setAuthMode('signin')">เข้าสู่ระบบ</button>
@@ -404,7 +404,7 @@ const workoutTagCls= { running:'peach', bodyweight:'lav', brisk_walking:'mint' }
 // URL ต้องเป็นค่าเปล่าๆ เช่น https://xxxx.supabase.co (ห้ามมี /rest/v1 ต่อท้าย)
 // =====================================================================
 const SUPABASE_URL = 'https://uplkgdektoqegfhkcgde.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwbGtnZGVrdG9xZWdmaGtjZ2RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDMxMjUsImV4cCI6MjEwNDQxOTEyNX0.f7_RVxQx6q4N99bB6Wae4Kml7AVbzy4pP418G2ox-i4';
+const SUPABASE_ANON_KEY = 'ใส่ Anon Key ของคุณตรงนี้';
 
 let sb=null, currentUser=null, profile=null, household=null, partner=null;
 let authMode='signin';
@@ -532,8 +532,9 @@ window.handleJoinHousehold = async function(){
   const code = document.getElementById('hh-code').value.trim();
   const errEl = document.getElementById('hh-err');
   try{
-    const { data:hh, error } = await sb.from('households').select('*').eq('invite_code', code).maybeSingle();
+    const { data:hhList, error } = await sb.rpc('find_household_by_invite_code', { code });
     if(error) throw error;
+    const hh = hhList && hhList[0];
     if(!hh){ errEl.textContent = 'ไม่พบรหัสเชิญนี้'; return; }
     const { error:memErr } = await sb.from('household_members').insert({ household_id:hh.id, user_id:currentUser.id, role:'partner' });
     if(memErr) throw memErr;
