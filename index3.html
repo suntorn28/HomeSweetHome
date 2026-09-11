@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Our Homie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --bg-tint:#FFF8F8;
+    --ink:#2B2028;
+    --ink-soft:#8A7A80;
+    --line: rgba(43,32,40,0.09);
+    --maroon:#7A1F2B;
+    --maroon-dark:#5E141D;
+    --red:#C23B4B;
+    --blue:#4A90D9;
+    --pink-bg:#FCE4EC; --pink-ink:#B23A5D;
+    --mint-bg:#DFF6EC; --mint-ink:#2E8B6F;
+    --peach-bg:#FDE9D2; --peach-ink:#C67A2E;
+    --lav-bg:#EDE3FB;  --lav-ink:#7856B8;
+    --blue-bg:#DCEEFB;  --blue-ink:#2E76B8;
+    --green-ok:#2FAE7D;
+    --red-over:#D64550;
+    --radius-lg:20px;
+    --radius-md:14px;
+    --radius-sm:10px;
+    --shadow: 0 2px 14px rgba(43,32,40,0.07);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:#EFEAEA;
+    font-family:'Kanit', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  h1,h2,h3{ margin:0; font-weight:600; }
+  #app-shell{
+    width:100%; max-width:480px; min-height:100vh;
+    background:var(--bg); position:relative;
+    display:flex; flex-direction:column;
+    box-shadow:0 0 60px rgba(0,0,0,0.15);
+  }
+  .hidden{ display:none !important; }
+  .muted{ color:var(--ink-soft); font-size:13px; }
+  .err{ color:var(--red-over); font-size:13px; min-height:16px; }
+
+  /* ---------------- form basics ---------------- */
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{ font-size:13px; color:var(--ink-soft); }
+  input, select, textarea{
+    font-family:inherit; font-size:15px; padding:13px 16px;
+    border-radius:999px; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink); width:100%;
+  }
+  textarea{ border-radius:14px; resize:vertical; min-height:60px; }
+  input:focus, select:focus, textarea:focus{ outline:2px solid var(--maroon); outline-offset:1px; }
+  button{ font-family:inherit; cursor:pointer; border:none; }
+  .btn{ border-radius:999px; padding:14px 18px; font-size:15px; font-weight:600; width:100%;
+        display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btn-maroon{ background:var(--maroon); color:#fff; }
+  .btn-maroon:hover{ background:var(--maroon-dark); }
+  .btn-outline{ background:#fff; color:var(--maroon); border:1.5px solid var(--maroon); }
+  .btn-ghost{ background:none; color:var(--ink-soft); text-decoration:underline; font-size:13px; padding:6px; width:auto; }
+  .btn-small{ padding:8px 14px; font-size:13px; border-radius:999px; }
+  .btn-mint{ background:var(--mint-ink); color:#fff; }
+
+  .icon-input{ position:relative; }
+  .icon-input svg{ position:absolute; left:16px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--ink-soft); }
+  .icon-input input{ padding-left:44px; }
+  .icon-input .eye{ position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; padding:0; color:var(--ink-soft); }
+
+  /* ---------------- onboarding screens ---------------- */
+  .center-screen{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:30px 26px; gap:16px; }
+  .blob-row{ display:flex; align-items:flex-end; justify-content:center; gap:6px; margin-bottom:6px; height:110px; position:relative; }
+  .blob{ border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .brand-title{ text-align:center; font-size:30px; font-weight:700; color:var(--maroon); }
+  .brand-tagline{ text-align:center; font-size:14px; color:var(--ink-soft); line-height:1.6; margin-bottom:6px; }
+  .segmented{ display:flex; background:var(--bg-tint); border-radius:999px; padding:4px; }
+  .segmented button{ flex:1; padding:11px 0; border-radius:999px; background:none; font-size:14px; font-weight:600; color:var(--ink-soft); }
+  .segmented button.active{ background:#fff; color:var(--maroon); box-shadow:var(--shadow); }
+
+  .card{ background:#fff; border:1.5px solid var(--line); border-radius:var(--radius-lg); padding:16px 18px; margin-bottom:14px; }
+
+  /* ---------------- page header (per-tab) ---------------- */
+  .page-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:10px; flex-wrap:wrap; }
+  .page-title{ display:flex; align-items:center; gap:10px; font-size:22px; font-weight:700; }
+  .page-title svg{ width:24px; height:24px; color:var(--maroon); }
+  .pill-toggle-group{ display:flex; gap:8px; }
+  .pill-toggle{ padding:7px 14px; border-radius:999px; font-size:12.5px; font-weight:600; border:1.5px solid transparent;
+                display:flex; align-items:center; gap:6px; background:var(--bg-tint); color:var(--ink-soft); }
+  .pill-toggle .dot{ width:7px; height:7px; border-radius:50%; }
+  .pill-toggle.on.shared{ background:var(--pink-bg); color:var(--red); }
+  .pill-toggle.on.shared .dot{ background:var(--red); }
+  .pill-toggle.on.personal{ background:var(--blue-bg); color:var(--blue); }
+  .pill-toggle.on.personal .dot{ background:var(--blue); }
+
+  #main{ flex:1; padding:20px 18px 100px; overflow-y:auto; }
+
+  /* ---------------- segmented sub-nav (Month/List/Mood) ---------------- */
+  .subnav{ display:flex; background:var(--bg-tint); border-radius:999px; padding:4px; margin-bottom:16px; }
+  .subnav button{ flex:1; padding:10px 0; border-radius:999px; font-size:13px; font-weight:600; background:none; color:var(--ink-soft);
+                  display:flex; align-items:center; justify-content:center; gap:5px; }
+  .subnav button svg{ width:15px; height:15px; }
+  .subnav button.active{ background:#fff; color:var(--red); box-shadow:var(--shadow); }
+
+  /* ---------------- filter chips ---------------- */
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .chip{ padding:9px 15px; border-radius:999px; font-size:13px; font-weight:600; background:var(--bg-tint); color:var(--ink-soft);
+         display:flex; align-items:center; gap:6px; border:1.5px solid transparent; }
+  .chip svg{ width:15px; height:15px; }
+  .chip.active{ background:var(--maroon); color:#fff; }
+
+  /* ---------------- stat cards (home) ---------------- */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+  .stat-card{ border-radius:16px; padding:14px 6px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .stat-card .stat-icon{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .stat-card .stat-icon svg{ width:17px; height:17px; }
+  .stat-card .stat-num{ font-size:19px; font-weight:700; }
+  .stat-card .stat-label{ font-size:10.5px; color:var(--ink-soft); }
+
+  .section-row{ display:flex; justify-content:space-between; align-items:center; margin:22px 0 10px; }
+  .section-row h3{ font-size:16px; }
+  .view-all{ font-size:12.5px; font-weight:600; color:var(--maroon); text-decoration:none; }
+
+  /* ---------------- list items ---------------- */
+  .list-item{ display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-bottom:1px dashed var(--line); }
+  .list-item:last-child{ border-bottom:none; }
+  .li-icon{ width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .li-icon svg{ width:18px; height:18px; }
+  .li-main{ flex:1; display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .li-title{ font-weight:600; font-size:14.5px; }
+  .li-sub{ font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .tag{ display:inline-flex; align-items:center; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; }
+  .tag.food{ background:var(--peach-bg); color:var(--peach-ink); }
+  .tag.household{ background:var(--mint-bg); color:var(--mint-ink); }
+  .tag.health{ background:var(--pink-bg); color:var(--pink-ink); }
+  .tag.fitness{ background:var(--mint-bg); color:var(--mint-ink); }
+  .tag.shopping{ background:var(--peach-bg); color:var(--peach-ink); }
+  .tag.utility{ background:var(--lav-bg); color:var(--lav-ink); }
+  .tag.transport{ background:var(--blue-bg); color:var(--blue-ink); }
+  .tag.other{ background:var(--bg-tint); color:var(--ink-soft); }
+  .tag.shared{ background:var(--pink-bg); color:var(--red); }
+  .tag.personal{ background:var(--blue-bg); color:var(--blue); }
+  .avatar-badge{ width:18px; height:18px; border-radius:50%; background:var(--maroon); color:#fff; font-size:10px; font-weight:700;
+                 display:inline-flex; align-items:center; justify-content:center; }
+  .checkbox-sq{ width:22px; height:22px; border-radius:7px; border:2px solid var(--line); background:#fff; flex-shrink:0; cursor:pointer;
+                display:flex; align-items:center; justify-content:center; }
+  .checkbox-sq.checked{ background:var(--green-ok); border-color:var(--green-ok); }
+  .checkbox-sq.checked svg{ width:13px; height:13px; color:#fff; }
+  .icon-btn{ background:none; border:none; color:var(--ink-soft); padding:5px; }
+  .icon-btn svg{ width:16px; height:16px; }
+  .icon-btn:hover{ color:var(--red-over); }
+  .empty-state{ text-align:center; padding:34px 10px; color:var(--ink-soft); font-size:13.5px; }
+  .add-item-row{ display:flex; align-items:center; gap:8px; padding:13px 0 2px; color:var(--ink-soft); font-size:14px; cursor:pointer; }
+  .add-item-row svg{ width:16px; height:16px; }
+
+  /* ---------------- finance hero ---------------- */
+  .finance-hero{ background:linear-gradient(135deg,#B23244,#6E1826); border-radius:var(--radius-lg); padding:22px 20px; color:#fff; margin-bottom:18px; }
+  .finance-hero .label{ font-size:11.5px; letter-spacing:0.06em; opacity:0.8; text-transform:uppercase; }
+  .finance-hero .total{ font-size:34px; font-weight:700; margin:6px 0 18px; }
+  .paid-split{ display:flex; gap:14px; margin-bottom:14px; }
+  .paid-col{ flex:1; }
+  .paid-col .name{ font-size:12.5px; opacity:0.85; margin-bottom:3px; }
+  .paid-col .amt{ font-size:17px; font-weight:700; margin-bottom:6px; }
+  .bar-track{ background:rgba(255,255,255,0.25); border-radius:999px; height:6px; overflow:hidden; }
+  .bar-fill{ height:100%; background:#fff; border-radius:999px; }
+  .pending-row{ display:flex; gap:10px; }
+  .pending-card{ flex:1; background:rgba(255,255,255,0.14); border-radius:14px; padding:12px 14px; }
+  .pending-card .lbl{ font-size:11.5px; opacity:0.85; display:flex; align-items:center; gap:5px; margin-bottom:4px; }
+  .pending-card .lbl svg{ width:12px; height:12px; }
+  .pending-card .amt{ font-size:18px; font-weight:700; }
+  .pending-card .sub{ font-size:11px; opacity:0.8; margin-top:2px; }
+
+  .budget-row{ margin-bottom:14px; }
+  .budget-row .top{ display:flex; justify-content:space-between; align-items:center; font-size:13.5px; margin-bottom:6px; }
+  .budget-row .top .name{ display:flex; align-items:center; gap:8px; font-weight:500; }
+  .budget-row .top .vals{ font-weight:600; }
+  .budget-row .top .vals .over{ color:var(--red-over); }
+  .budget-track{ background:var(--bg-tint); border-radius:999px; height:8px; overflow:hidden; }
+  .budget-fill{ height:100%; background:var(--green-ok); }
+  .budget-fill.over{ background:var(--red-over); }
+
+  /* ---------------- mood picker ---------------- */
+  .mood-row{ display:flex; gap:8px; justify-content:space-between; margin-bottom:12px; }
+  .mood-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .mood-btn{ width:100%; aspect-ratio:1; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:19px;
+             border:2px solid transparent; background:var(--bg-tint); }
+  .mood-btn.active{ border-color:var(--ink); }
+  .mood-item .lbl{ font-size:10px; color:var(--ink-soft); text-align:center; }
+  .mood-echo{ display:flex; align-items:center; gap:12px; background:var(--bg-tint); border-radius:14px; padding:12px 14px; margin-bottom:18px; }
+  .mood-echo .dot-lg{ width:34px; height:34px; border-radius:50%; flex-shrink:0; }
+
+  /* ---------------- calendar month grid ---------------- */
+  .cal-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .cal-nav .lbl{ font-size:17px; font-weight:600; }
+  .cal-nav button{ background:var(--bg-tint); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--maroon); }
+  .cal-nav button svg{ width:16px; height:16px; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:18px; }
+  .cal-wd{ text-align:center; font-size:11px; color:var(--ink-soft); font-weight:600; padding-bottom:4px; }
+  .cal-cell{ aspect-ratio:1; border-radius:11px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+             font-size:13px; background:var(--bg-tint); color:var(--ink); cursor:pointer; position:relative; }
+  .cal-cell.empty{ background:none; cursor:default; }
+  .cal-cell.today{ border:2px solid var(--ink); }
+  .cal-cell.selected{ border:2px solid var(--red); }
+  .cal-cell .ev-dot{ width:5px; height:5px; border-radius:50%; background:var(--red); position:absolute; bottom:5px; }
+  .day-detail-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .day-detail-header .lbl{ font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .fab-inline{ width:32px; height:32px; border-radius:50%; background:var(--maroon); color:#fff; display:flex; align-items:center; justify-content:center; }
+  .fab-inline svg{ width:16px; height:16px; }
+
+  /* ---------------- floating add button ---------------- */
+  .fab{ position:fixed; bottom:92px; right:calc(50% - 240px + 18px); width:54px; height:54px; border-radius:50%;
+        background:var(--maroon); color:#fff; box-shadow:0 8px 20px rgba(122,31,43,0.4);
+        display:flex; align-items:center; justify-content:center; }
+  .fab svg{ width:24px; height:24px; }
+  @media (max-width:480px){ .fab{ right:18px; } }
+
+  /* ---------------- modal ---------------- */
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(43,32,40,0.5); display:flex; align-items:flex-end; justify-content:center; z-index:50; }
+  .modal{ width:100%; max-width:480px; background:#fff; border-radius:24px 24px 0 0; padding:24px 20px 28px;
+          display:flex; flex-direction:column; gap:13px; max-height:85vh; overflow-y:auto; }
+  .modal h3{ font-size:19px; margin-bottom:2px; }
+  .form-row{ display:flex; gap:10px; }
+  .form-row .field{ flex:1; }
+  .chip-select-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip-select{ padding:9px 15px; border-radius:999px; font-size:13px; border:1.5px solid var(--line); background:#fff; color:var(--ink-soft); }
+  .chip-select.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  /* ---------------- profile tab ---------------- */
+  .profile-avatar{ width:72px; height:72px; border-radius:50%; background:var(--maroon); color:#fff; font-size:26px; font-weight:700;
+                    display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
+  .profile-name{ text-align:center; font-size:19px; font-weight:700; }
+  .profile-email{ text-align:center; font-size:12.5px; color:var(--ink-soft); margin-bottom:20px; }
+  .invite-box{ display:flex; align-items:center; justify-content:space-between; background:var(--bg-tint); border-radius:14px; padding:14px 16px; }
+  .invite-box code{ font-size:16px; font-weight:700; letter-spacing:0.08em; color:var(--maroon); }
+
+  /* ---------------- bottom tab bar ---------------- */
+  #tabbar{ position:fixed; bottom:0; width:100%; max-width:480px; background:#fff; border-top:1px solid var(--line);
+           display:flex; justify-content:space-around; align-items:center; padding:9px 4px 12px; z-index:10; }
+  .tab-btn{ background:none; border:none; color:#B4A7AC; display:flex; flex-direction:column; align-items:center; gap:3px;
+            font-size:10px; padding:4px 6px; font-weight:500; position:relative; }
+  .tab-btn svg{ width:21px; height:21px; }
+  .tab-btn.active{ color:var(--red); font-weight:600; }
+  .tab-badge{ position:absolute; top:-2px; right:2px; background:var(--red); color:#fff; font-size:9px; font-weight:700;
+              width:15px; height:15px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+<div id="app-shell">
+
+  <!-- ============ AUTH ============ -->
+  <div id="view-auth" class="center-screen hidden">
+    <div class="blob-row">
+      <div class="blob" style="width:70px;height:70px;background:#F4A24C;"></div>
+      <div class="blob" style="width:110px;height:110px;background:#EA5C8A;font-size:30px;">☺</div>
+      <div class="blob" style="width:70px;height:70px;background:#F4A24C;border-radius:16px;"></div>
+    </div>
+    <h1 class="brand-title">Our Homie</h1>
+    <p class="brand-tagline">จัดการบ้านของเราไปด้วยกัน ของใช้ ปฏิทิน อารมณ์ ออกกำลังกาย และเงินร่วม ในแอปเดียว</p>
+    <div class="segmented">
+      <button id="seg-signin" class="active" onclick="setAuthMode('signin')">เข้าสู่ระบบ</button>
+      <button id="seg-signup" onclick="setAuthMode('signup')">สมัครสมาชิก</button>
+    </div>
+    <div class="field hidden" id="signup-name-field">
+      <div class="icon-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        <input id="auth-name" placeholder="ชื่อที่แสดง เช่น พลอย" />
+      </div>
+    </div>
+    <div class="field">
+      <div class="icon-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        <input id="auth-email" type="email" placeholder="Email" />
+      </div>
+    </div>
+    <div class="field">
+      <div class="icon-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+        <input id="auth-password" type="password" placeholder="Password" />
+        <button class="eye" onclick="togglePw()">◎</button>
+      </div>
+    </div>
+    <div class="err" id="auth-err"></div>
+    <button class="btn btn-maroon" id="auth-submit-btn" onclick="handleAuthSubmit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+      เข้าสู่ระบบ
+    </button>
+  </div>
+
+  <!-- ============ HOUSEHOLD SETUP ============ -->
+  <div id="view-household" class="center-screen hidden">
+    <h1 class="brand-title" style="font-size:24px;">จับคู่บ้านของคุณ</h1>
+    <p class="brand-tagline">สร้างบ้านใหม่แล้วส่งรหัสเชิญให้อีกฝ่าย หรือใส่รหัสเชิญที่ได้รับ</p>
+    <div class="card">
+      <h3 style="font-size:15px; margin-bottom:10px;">สร้างบ้านใหม่</h3>
+      <div class="field"><input id="hh-name" placeholder="ตั้งชื่อบ้าน เช่น บ้านของเรา" /></div>
+      <button class="btn btn-maroon" style="margin-top:12px;" onclick="handleCreateHousehold()">สร้างบ้าน</button>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px; margin-bottom:10px;">เข้าร่วมบ้านที่มีอยู่</h3>
+      <div class="field"><input id="hh-code" placeholder="รหัสเชิญ 8 หลัก" /></div>
+      <button class="btn btn-outline" style="margin-top:12px;" onclick="handleJoinHousehold()">เข้าร่วม</button>
+    </div>
+    <div class="err" id="hh-err"></div>
+  </div>
+
+  <!-- ============ MAIN APP ============ -->
+  <div id="view-app" class="hidden" style="display:flex; flex-direction:column; min-height:100vh;">
+    <div id="main">
+      <div id="tab-home"></div>
+      <div id="tab-shopping" class="hidden"></div>
+      <div id="tab-calendar" class="hidden"></div>
+      <div id="tab-workout" class="hidden"></div>
+      <div id="tab-finance" class="hidden"></div>
+      <div id="tab-profile" class="hidden"></div>
+    </div>
+
+    <button class="fab hidden" id="fab-btn" onclick="openAddModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <div id="tabbar">
+      <button class="tab-btn active" data-tab="home" onclick="switchTab('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        หน้าแรก
+      </button>
+      <button class="tab-btn" data-tab="shopping" onclick="switchTab('shopping')" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+        ของใช้
+        <span class="tab-badge hidden" id="shopping-badge">0</span>
+      </button>
+      <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        ปฏิทิน
+      </button>
+      <button class="tab-btn" data-tab="workout" onclick="switchTab('workout')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h4M16 12h4M6 8v8M18 8v8M8 12h8"/></svg>
+        ออกกำลังกาย
+      </button>
+      <button class="tab-btn" data-tab="finance" onclick="switchTab('finance')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.4"/></svg>
+        การเงิน
+      </button>
+      <button class="tab-btn" data-tab="profile" onclick="switchTab('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        โปรไฟล์
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// =====================================================================
+// ICONS
+// =====================================================================
+const ICONS = {
+  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  workout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h4M16 12h4M6 8v8M18 8v8M8 12h8"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.4"/></svg>',
+  budget:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1 1-1.8 3-1.8s3 .8 3 1.8-1 1.5-3 1.8c-2 .3-3 .8-3 1.9s1.3 1.8 3 1.8 3-.8 3-1.8"/></svg>',
+  run:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="15" cy="5" r="2"/><path d="M6 20l3-5 3 1 2-4-3-3-4 1M9 16l-3 4"/></svg>',
+  walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13" cy="5" r="2"/><path d="M10 22l1-6-3-2 1-5 4 1 2 4h3M9 14l-4 3"/></svg>',
+  bw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h4M16 12h4M6 8v8M18 8v8M8 12h8"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-8 0l1 13a2 2 0 002 2h4a2 2 0 002-2l1-13"/></svg>',
+  chevL:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>',
+  chevR:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l4 4 10-10"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
+  smile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>',
+};
+
+const MOODS = [
+  { v:5, label:'มีความสุข', color:'#EA5C8A', bg:'var(--pink-bg)' },
+  { v:4, label:'สงบ',       color:'#8B6FD9', bg:'var(--lav-bg)' },
+  { v:3, label:'เศร้า',      color:'#4A90D9', bg:'var(--blue-bg)' },
+  { v:2, label:'หงุดหงิด',   color:'#E8722E', bg:'var(--peach-bg)' },
+  { v:1, label:'เหนื่อย',    color:'#E8A93E', bg:'var(--peach-bg)' },
+];
+function moodInfo(v){ return MOODS.find(m=>m.v===v); }
+
+const workoutLabel = { running:'วิ่ง', bodyweight:'Bodyweight', brisk_walking:'เดินเร็ว' };
+const workoutIcon  = { running:ICONS.run, bodyweight:ICONS.bw, brisk_walking:ICONS.walk };
+const workoutTagCls= { running:'peach', bodyweight:'lav', brisk_walking:'mint' };
+
+// =====================================================================
+// STATE
+// =====================================================================
+// =====================================================================
+// SUPABASE CONFIG — ใส่ค่าโปรเจกต์ของคุณตรงนี้
+// หา URL และ Anon Key ได้จาก Supabase Dashboard → Settings → API
+// URL ต้องเป็นค่าเปล่าๆ เช่น https://xxxx.supabase.co (ห้ามมี /rest/v1 ต่อท้าย)
+// =====================================================================
+const SUPABASE_URL = 'https://uplkgdektoqegfhkcgde.supabase.co';
+const SUPABASE_ANON_KEY = 'ใส่ Anon Key ของคุณตรงนี้';
+
+let sb=null, currentUser=null, profile=null, household=null, partner=null;
+let authMode='signin';
+let activeTab='home';
+let calSubView='month';
+let calMonthCursor=new Date();
+let calSelectedDate=new Date();
+let calShowShared=true, calShowPersonal=true;
+let workoutFilter='all';
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function fmtDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function todayISO(){ return fmtDate(new Date()); }
+function money(n){ return Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function catLabel(c){ return {food:'ของกิน',household:'ของใช้',health:'สุขภาพ',fitness:'ฟิตเนส',shopping:'ช้อปปิ้ง',utility:'สาธารณูปโภค',transport:'เดินทาง',other:'อื่นๆ'}[c]||c; }
+function initials(name){ return (name||'?').trim().slice(0,1).toUpperCase(); }
+function showView(id){ ['view-auth','view-household','view-app'].forEach(v=>document.getElementById(v).classList.toggle('hidden', v!==id)); }
+function monthMatrix(year, month){
+  const first=new Date(year,month,1), startWd=first.getDay(), days=new Date(year,month+1,0).getDate();
+  const cells=[]; for(let i=0;i<startWd;i++) cells.push(null);
+  for(let d=1; d<=days; d++) cells.push(new Date(year,month,d));
+  while(cells.length%7!==0) cells.push(null);
+  const weeks=[]; for(let i=0;i<cells.length;i+=7) weeks.push(cells.slice(i,i+7));
+  return weeks;
+}
+
+// =====================================================================
+// INIT SUPABASE (อัตโนมัติ ไม่ต้องกดปุ่มเชื่อมต่อ)
+// =====================================================================
+async function initSupabase(){
+  if(!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('ใส่ Anon Key')){
+    document.body.innerHTML = '<div style="padding:40px 24px; font-family:sans-serif; color:#7A1F2B;">กรุณาใส่ SUPABASE_URL และ SUPABASE_ANON_KEY ในโค้ด (ค้นหาคำว่า SUPABASE_ANON_KEY ในไฟล์)</div>';
+    return;
+  }
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.sb = sb;
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ currentUser = session.user; await afterAuth(); }
+  else showView('view-auth');
+}
+
+// =====================================================================
+// AUTH
+// =====================================================================
+window.setAuthMode = function(mode){
+  authMode = mode;
+  document.getElementById('seg-signin').classList.toggle('active', mode==='signin');
+  document.getElementById('seg-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('signup-name-field').classList.toggle('hidden', mode!=='signup');
+  document.getElementById('auth-submit-btn').lastChild.textContent = mode==='signin' ? ' เข้าสู่ระบบ' : ' สมัครสมาชิก';
+};
+window.togglePw = function(){
+  const inp = document.getElementById('auth-password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+};
+
+window.handleAuthSubmit = async function(){
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-err'); errEl.textContent=''; errEl.style.color='';
+  try{
+    if(authMode==='signup'){
+      const displayName = document.getElementById('auth-name').value.trim() || email.split('@')[0];
+      const { data, error } = await sb.auth.signUp({ email, password, options:{ data:{ display_name: displayName } } });
+      if(error) throw error;
+      if(!data.session){
+        errEl.style.color = 'var(--green-ok)';
+        errEl.textContent = 'สมัครสำเร็จ! กรุณายืนยันอีเมลจากลิงก์ที่ระบบส่งไปให้ก่อน แล้วค่อยกลับมาเข้าสู่ระบบ';
+        setAuthMode('signin');
+        return;
+      }
+      currentUser = data.user;
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if(error) throw error;
+      currentUser = data.user;
+    }
+    await afterAuth();
+  }catch(e){ errEl.textContent = e.message; }
+};
+
+window.handleSignOut = async function(){
+  await sb.auth.signOut();
+  currentUser=null; profile=null; household=null; partner=null;
+  showView('view-auth');
+};
+
+async function afterAuth(){
+  const { data:{ user } } = await sb.auth.getUser();
+  currentUser = user;
+  const { data:profRow } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+  profile = profRow;
+  await loadHousehold();
+}
+
+// =====================================================================
+// HOUSEHOLD
+// =====================================================================
+async function loadHousehold(){
+  const { data:memberRow } = await sb.from('household_members').select('household_id, role').eq('user_id', currentUser.id).maybeSingle();
+  if(!memberRow){ showView('view-household'); return; }
+  const { data:hh } = await sb.from('households').select('*').eq('id', memberRow.household_id).single();
+  household = hh;
+  const { data:members } = await sb.from('household_members').select('user_id').eq('household_id', hh.id);
+  const partnerId = members.map(m=>m.user_id).find(id=>id!==currentUser.id);
+  partner = partnerId ? (await sb.from('profiles').select('*').eq('id', partnerId).maybeSingle()).data : null;
+  showView('view-app');
+  switchTab('home');
+}
+
+window.handleCreateHousehold = async function(){
+  const name = document.getElementById('hh-name').value.trim() || 'บ้านของเรา';
+  const errEl = document.getElementById('hh-err');
+  try{
+    const { data:hh, error } = await sb.from('households').insert({ name, created_by: currentUser.id }).select().single();
+    if(error) throw error;
+    const { error:memErr } = await sb.from('household_members').insert({ household_id:hh.id, user_id:currentUser.id, role:'owner' });
+    if(memErr) throw memErr;
+    await loadHousehold();
+  }catch(e){ errEl.textContent = e.message; }
+};
+window.handleJoinHousehold = async function(){
+  const code = document.getElementById('hh-code').value.trim();
+  const errEl = document.getElementById('hh-err');
+  try{
+    const { data:hh, error } = await sb.from('households').select('*').eq('invite_code', code).maybeSingle();
+    if(error) throw error;
+    if(!hh){ errEl.textContent = 'ไม่พบรหัสเชิญนี้'; return; }
+    const { error:memErr } = await sb.from('household_members').insert({ household_id:hh.id, user_id:currentUser.id, role:'partner' });
+    if(memErr) throw memErr;
+    await loadHousehold();
+  }catch(e){ errEl.textContent = e.message; }
+};
+
+// =====================================================================
+// TAB SWITCHING
+// =====================================================================
+window.switchTab = function(tab){
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  ['home','shopping','calendar','workout','finance','profile'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden', t!==tab));
+  document.getElementById('fab-btn').classList.toggle('hidden', tab==='home' || tab==='profile');
+  if(tab==='home') renderHome();
+  if(tab==='shopping') renderShopping();
+  if(tab==='calendar') renderCalendar();
+  if(tab==='workout') renderWorkout();
+  if(tab==='finance') renderFinance();
+  if(tab==='profile') renderProfile();
+};
+
+// =====================================================================
+// HOME
+// =====================================================================
+async function renderHome(){
+  const el = document.getElementById('tab-home');
+  el.innerHTML = `<div class="page-header"><div class="page-title">${ICONS.smile}<span>สวัสดี ${profile?.display_name||''}</span></div></div><div class="muted">กำลังโหลด...</div>`;
+
+  const now = new Date();
+  const [{data:items}, {data:events}, {data:workouts}, {data:expenses}, {data:budgetRow}, {data:todayMood}] = await Promise.all([
+    sb.from('shopping_items').select('*').eq('household_id',household.id).eq('is_purchased',false),
+    sb.from('calendar_events').select('*').eq('household_id',household.id).gte('start_at', now.toISOString()).order('start_at',{ascending:true}),
+    sb.from('workout_logs').select('*').eq('household_id',household.id),
+    sb.from('expenses').select('*').eq('household_id',household.id),
+    sb.from('monthly_budgets').select('*').eq('household_id',household.id).eq('year',now.getFullYear()).eq('month',now.getMonth()+1).is('category',null).maybeSingle(),
+    sb.from('mood_logs').select('*').eq('user_id',currentUser.id).eq('log_date', todayISO()).maybeSingle()
+  ]);
+
+  updateShoppingBadge((items||[]).length);
+
+  const monthExpenses = (expenses||[]).filter(e=>{ const d=new Date(e.expense_date); return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); });
+  const monthTotal = monthExpenses.reduce((s,e)=>s+Number(e.amount),0);
+  const budgetPct = budgetRow?.budget_amount ? Math.round((monthTotal/budgetRow.budget_amount)*100) : 0;
+
+  const statCards = [
+    { bg:'var(--pink-bg)', ink:'var(--pink-ink)', icon:ICONS.cart, num:(items||[]).length, label:'ของใช้ค้าง' },
+    { bg:'var(--mint-bg)', ink:'var(--mint-ink)', icon:ICONS.calendar, num:(events||[]).length, label:'นัดหมาย' },
+    { bg:'var(--peach-bg)', ink:'var(--peach-ink)', icon:ICONS.workout, num:(workouts||[]).length, label:'ออกกำลังกาย' },
+    { bg:'var(--lav-bg)', ink:'var(--lav-ink)', icon:ICONS.budget, num:(budgetRow?budgetPct+'%':'-'), label:'งบเดือนนี้' },
+  ];
+  const statHTML = statCards.map(c=>`
+    <div class="stat-card" style="background:${c.bg};">
+      <div class="stat-icon" style="background:#fff; color:${c.ink};">${c.icon}</div>
+      <div class="stat-num" style="color:${c.ink};">${c.num}</div>
+      <div class="stat-label">${c.label}</div>
+    </div>`).join('');
+
+  const moodHTML = MOODS.map(m=>`
+    <div class="mood-item">
+      <button class="mood-btn ${todayMood?.mood_rating===m.v?'active':''}" style="background:${m.bg};" onclick="setMood(${m.v})"></button>
+      <div class="lbl">${m.label}</div>
+    </div>`).join('');
+
+  const nextEvent = events && events[0];
+  const eventHTML = nextEvent
+    ? `<div class="list-item" style="border:none; padding:0;">
+         <div class="li-icon" style="background:${nextEvent.event_type==='shared'?'var(--pink-bg)':'var(--blue-bg)'}; color:${nextEvent.event_type==='shared'?'var(--red)':'var(--blue)'};">${ICONS.calendar}</div>
+         <div class="li-main"><span class="li-title">${nextEvent.title}</span>
+         <span class="li-sub">${new Date(nextEvent.start_at).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})} · <span class="tag ${nextEvent.event_type==='shared'?'shared':'personal'}">${nextEvent.event_type==='shared'?'ส่วนรวม':'ส่วนตัว'}</span></span></div>
+       </div>`
+    : `<div class="muted">ยังไม่มีนัดหมายที่จะถึง</div>`;
+
+  el.innerHTML = `
+    <div class="page-header"><div class="page-title">${ICONS.smile}<span>สวัสดี ${profile?.display_name||''}</span></div></div>
+    <div class="stat-grid">${statHTML}</div>
+    <div class="card">
+      <h3 style="font-size:14.5px; margin-bottom:12px;">อารมณ์วันนี้</h3>
+      <div class="mood-row">${moodHTML}</div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:14.5px; margin-bottom:10px;">นัดหมายถัดไป</h3>
+      ${eventHTML}
+    </div>
+  `;
+}
+window.setMood = async function(rating){
+  await sb.from('mood_logs').upsert({ household_id:household.id, user_id:currentUser.id, log_date:todayISO(), mood_rating:rating }, { onConflict:'user_id,log_date' });
+  if(activeTab==='home') renderHome(); else if(activeTab==='calendar') renderCalendar();
+};
+function updateShoppingBadge(n){
+  const b = document.getElementById('shopping-badge');
+  b.textContent = n; b.classList.toggle('hidden', n===0);
+}
+
+// =====================================================================
+// SHOPPING
+// =====================================================================
+async function renderShopping(){
+  const el = document.getElementById('tab-shopping');
+  const { data:items } = await sb.from('shopping_items').select('*').eq('household_id',household.id).order('is_purchased',{ascending:true}).order('created_at',{ascending:false});
+  updateShoppingBadge((items||[]).filter(i=>!i.is_purchased).length);
+  el.innerHTML = `
+    <div class="page-header"><div class="page-title">${ICONS.cart}<span>ของใช้ในบ้าน</span></div></div>
+    <div class="card"><div class="list" id="shopping-list"></div>
+      <div class="add-item-row" onclick="openAddModal()">${ICONS.plus} เพิ่มของใหม่...</div>
+    </div>`;
+  const list = document.getElementById('shopping-list');
+  if(!items || items.length===0){ list.innerHTML = `<div class="empty-state">ยังไม่มีของในลิสต์</div>`; return; }
+  list.innerHTML = items.map(it=>`
+    <div class="list-item">
+      <div class="checkbox-sq ${it.is_purchased?'checked':''}" onclick="toggleShoppingItem('${it.id}', ${it.is_purchased})">${it.is_purchased?ICONS.check:''}</div>
+      <div class="li-main" style="${it.is_purchased?'opacity:0.5; text-decoration:line-through;':''}">
+        <span class="li-title">${it.name}</span>
+        <span class="li-sub"><span class="tag ${it.category}">${catLabel(it.category)}</span>${it.quantity?('· '+it.quantity):''}</span>
+      </div>
+      <button class="icon-btn" onclick="deleteShoppingItem('${it.id}')">${ICONS.trash}</button>
+    </div>`).join('');
+}
+window.toggleShoppingItem = async function(id, current){
+  const next=!current;
+  await sb.from('shopping_items').update({ is_purchased:next, purchased_by:next?currentUser.id:null, purchased_at:next?new Date().toISOString():null }).eq('id', id);
+  renderShopping();
+};
+window.deleteShoppingItem = async function(id){ await sb.from('shopping_items').delete().eq('id', id); renderShopping(); };
+
+// =====================================================================
+// CALENDAR & MOOD
+// =====================================================================
+async function renderCalendar(){
+  const el = document.getElementById('tab-calendar');
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">${ICONS.calendar}<span>ปฏิทิน</span></div>
+      <div class="pill-toggle-group">
+        <div class="pill-toggle shared ${calShowShared?'on':''}" onclick="toggleCalFilter('shared')"><span class="dot"></span>ส่วนรวม</div>
+        <div class="pill-toggle personal ${calShowPersonal?'on':''}" onclick="toggleCalFilter('personal')"><span class="dot"></span>ส่วนตัว</div>
+      </div>
+    </div>
+    <div class="subnav">
+      <button class="${calSubView==='month'?'active':''}" onclick="setCalSubView('month')">${ICONS.grid} เดือน</button>
+      <button class="${calSubView==='list'?'active':''}" onclick="setCalSubView('list')">${ICONS.list} รายการ</button>
+      <button class="${calSubView==='mood'?'active':''}" onclick="setCalSubView('mood')">${ICONS.smile} อารมณ์</button>
+    </div>
+    <div id="cal-body"></div>
+  `;
+  if(calSubView==='month') await renderCalMonth();
+  else if(calSubView==='list') await renderCalList();
+  else await renderCalMood();
+}
+window.toggleCalFilter = function(t){ if(t==='shared') calShowShared=!calShowShared; else calShowPersonal=!calShowPersonal; renderCalendar(); };
+window.setCalSubView = function(v){ calSubView=v; renderCalendar(); };
+window.calNav = function(dir){ calMonthCursor = new Date(calMonthCursor.getFullYear(), calMonthCursor.getMonth()+dir, 1); if(calSubView==='month') renderCalMonth(); else renderCalMood(); };
+
+function filterEvents(events){
+  return (events||[]).filter(ev => (ev.event_type==='shared' && calShowShared) || (ev.event_type==='personal' && calShowPersonal));
+}
+
+async function renderCalMonth(){
+  const body = document.getElementById('cal-body');
+  const { data:events } = await sb.from('calendar_events').select('*').eq('household_id',household.id);
+  const filtered = filterEvents(events);
+  const y = calMonthCursor.getFullYear(), m = calMonthCursor.getMonth();
+  const weeks = monthMatrix(y, m);
+  const dayHasEvent = new Set(filtered.map(e=>fmtDate(new Date(e.start_at))));
+  const todayStr = todayISO(), selStr = fmtDate(calSelectedDate);
+  const wd = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+  const gridHTML = weeks.map(w=>w.map(d=>{
+    if(!d) return `<div class="cal-cell empty"></div>`;
+    const ds = fmtDate(d);
+    return `<div class="cal-cell ${ds===todayStr?'today':''} ${ds===selStr?'selected':''}" onclick="selectCalDate('${ds}')">
+      ${d.getDate()} ${dayHasEvent.has(ds)?'<span class="ev-dot"></span>':''}
+    </div>`;
+  }).join('')).join('');
+
+  const dayEvents = filtered.filter(e=>fmtDate(new Date(e.start_at))===selStr).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
+  const dayListHTML = dayEvents.length
+    ? dayEvents.map(ev=>`
+        <div class="list-item">
+          <div class="li-icon" style="background:${ev.event_type==='shared'?'var(--pink-bg)':'var(--blue-bg)'}; color:${ev.event_type==='shared'?'var(--red)':'var(--blue)'};">${ICONS.calendar}</div>
+          <div class="li-main"><span class="li-title">${ev.title}</span>
+          <span class="li-sub">${new Date(ev.start_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} ${ev.location?('· '+ev.location):''} · <span class="tag ${ev.event_type==='shared'?'shared':'personal'}">${ev.event_type==='shared'?'ส่วนรวม':'ส่วนตัว'}</span></span></div>
+          <button class="icon-btn" onclick="deleteEvent('${ev.id}')">${ICONS.trash}</button>
+        </div>`).join('')
+    : `<div class="empty-state">ไม่มีนัดหมายวันนี้</div>`;
+
+  body.innerHTML = `
+    <div class="cal-nav">
+      <button onclick="calNav(-1)">${ICONS.chevL}</button>
+      <div class="lbl">${calMonthCursor.toLocaleDateString('th-TH',{month:'long',year:'numeric'})}</div>
+      <button onclick="calNav(1)">${ICONS.chevR}</button>
+    </div>
+    <div class="cal-grid">${wd.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${gridHTML}</div>
+    <div class="day-detail-header">
+      <div class="lbl">${calSelectedDate.toLocaleDateString('th-TH',{day:'numeric',month:'long'})}</div>
+      <button class="fab-inline" onclick="openAddModal()">${ICONS.plus}</button>
+    </div>
+    <div class="card">${dayListHTML}</div>
+  `;
+}
+window.selectCalDate = function(ds){ calSelectedDate = new Date(ds+'T00:00:00'); renderCalMonth(); };
+
+async function renderCalList(){
+  const body = document.getElementById('cal-body');
+  const { data:events } = await sb.from('calendar_events').select('*').eq('household_id',household.id).order('start_at',{ascending:true});
+  const filtered = filterEvents(events);
+  body.innerHTML = `<div class="card"><div class="list" id="cal-list-inner"></div></div>`;
+  const inner = document.getElementById('cal-list-inner');
+  if(filtered.length===0){ inner.innerHTML = `<div class="empty-state">ยังไม่มีนัดหมาย</div>`; return; }
+  inner.innerHTML = filtered.map(ev=>`
+    <div class="list-item">
+      <div class="li-icon" style="background:${ev.event_type==='shared'?'var(--pink-bg)':'var(--blue-bg)'}; color:${ev.event_type==='shared'?'var(--red)':'var(--blue)'};">${ICONS.calendar}</div>
+      <div class="li-main"><span class="li-title">${ev.title}</span>
+      <span class="li-sub">${new Date(ev.start_at).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})} · <span class="tag ${ev.event_type==='shared'?'shared':'personal'}">${ev.event_type==='shared'?'ส่วนรวม':'ส่วนตัว'}</span></span></div>
+      <button class="icon-btn" onclick="deleteEvent('${ev.id}')">${ICONS.trash}</button>
+    </div>`).join('');
+}
+window.deleteEvent = async function(id){ await sb.from('calendar_events').delete().eq('id', id); renderCalendar(); };
+
+async function renderCalMood(){
+  const body = document.getElementById('cal-body');
+  const [{data:todayMood}, {data:allMoods}] = await Promise.all([
+    sb.from('mood_logs').select('*').eq('user_id',currentUser.id).eq('log_date',todayISO()).maybeSingle(),
+    sb.from('mood_logs').select('*').eq('user_id',currentUser.id)
+  ]);
+  const moodMap = {}; (allMoods||[]).forEach(m=>moodMap[m.log_date]=m.mood_rating);
+
+  const pickerHTML = MOODS.map(m=>`
+    <div class="mood-item">
+      <button class="mood-btn ${todayMood?.mood_rating===m.v?'active':''}" style="background:${m.bg};" onclick="setMood(${m.v})"></button>
+      <div class="lbl">${m.label}</div>
+    </div>`).join('');
+
+  const echoHTML = todayMood ? (()=>{ const info=moodInfo(todayMood.mood_rating);
+    return `<div class="mood-echo"><div class="dot-lg" style="background:${info.bg};"></div>
+      <div><b>${profile?.display_name}</b> รู้สึก <b style="color:${info.color};">${info.label}</b><div class="muted">${todayMood.log_date}</div></div></div>`;
+  })() : '';
+
+  const y=calMonthCursor.getFullYear(), m=calMonthCursor.getMonth();
+  const weeks = monthMatrix(y,m);
+  const gridHTML = weeks.map(w=>w.map(d=>{
+    if(!d) return `<div class="cal-cell empty"></div>`;
+    const ds=fmtDate(d); const rating=moodMap[ds]; const info=rating?moodInfo(rating):null;
+    return `<div class="cal-cell" style="background:${info?info.bg:'var(--bg-tint)'};">${d.getDate()}</div>`;
+  }).join('')).join('');
+  const wd = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+  const recent = (allMoods||[]).sort((a,b)=>b.log_date.localeCompare(a.log_date)).slice(0,8);
+  const recentHTML = recent.length ? recent.map(m=>{ const info=moodInfo(m.mood_rating);
+    return `<div class="list-item"><div class="li-icon" style="background:${info.bg}; color:${info.color};">●</div>
+      <div class="li-main"><span class="li-title">${profile?.display_name} รู้สึก ${info.label}</span><span class="li-sub">${m.log_date}</span></div></div>`;
+  }).join('') : `<div class="empty-state">ยังไม่มีบันทึกอารมณ์</div>`;
+
+  body.innerHTML = `
+    <div class="card">
+      <h3 style="font-size:14.5px; margin-bottom:12px;">วันนี้รู้สึกอย่างไร</h3>
+      <div class="mood-row">${pickerHTML}</div>
+      ${echoHTML}
+    </div>
+    <div class="cal-nav">
+      <button onclick="calNav(-1)">${ICONS.chevL}</button>
+      <div class="lbl">${calMonthCursor.toLocaleDateString('th-TH',{month:'long',year:'numeric'})}</div>
+      <button onclick="calNav(1)">${ICONS.chevR}</button>
+    </div>
+    <div class="cal-grid">${wd.map(w=>`<div class="cal-wd">${w}</div>`).join('')}${gridHTML}</div>
+    <div class="section-row"><h3>ล่าสุด</h3></div>
+    <div class="card">${recentHTML}</div>
+  `;
+}
+
+// =====================================================================
+// WORKOUT
+// =====================================================================
+async function renderWorkout(){
+  const el = document.getElementById('tab-workout');
+  el.innerHTML = `
+    <div class="page-header"><div class="page-title">${ICONS.workout}<span>ออกกำลังกาย</span></div></div>
+    <div class="icon-input" style="margin-bottom:14px;">${ICONS.search}<input id="workout-search" placeholder="ค้นหาโน้ตการออกกำลังกาย..." oninput="renderWorkoutList()" /></div>
+    <div class="chip-row">
+      <div class="chip ${workoutFilter==='all'?'active':''}" onclick="setWorkoutFilter('all')">${ICONS.grid} ทั้งหมด</div>
+      <div class="chip ${workoutFilter==='running'?'active':''}" onclick="setWorkoutFilter('running')">${ICONS.run} วิ่ง</div>
+      <div class="chip ${workoutFilter==='brisk_walking'?'active':''}" onclick="setWorkoutFilter('brisk_walking')">${ICONS.walk} เดินเร็ว</div>
+      <div class="chip ${workoutFilter==='bodyweight'?'active':''}" onclick="setWorkoutFilter('bodyweight')">${ICONS.bw} Bodyweight</div>
+    </div>
+    <div class="card"><div class="list" id="workout-list"></div></div>
+  `;
+  await renderWorkoutList();
+}
+window.setWorkoutFilter = function(f){ workoutFilter=f; renderWorkout(); };
+window.renderWorkoutList = async function(){
+  const search = (document.getElementById('workout-search')?.value || '').trim().toLowerCase();
+  const { data:logs } = await sb.from('workout_logs').select('*').eq('household_id',household.id).order('workout_date',{ascending:false}).limit(50);
+  let filtered = logs || [];
+  if(workoutFilter!=='all') filtered = filtered.filter(w=>w.workout_type===workoutFilter);
+  if(search) filtered = filtered.filter(w=>(w.note||'').toLowerCase().includes(search) || workoutLabel[w.workout_type].toLowerCase().includes(search));
+  const list = document.getElementById('workout-list');
+  if(!list) return;
+  if(filtered.length===0){ list.innerHTML = `<div class="empty-state">ยังไม่มีบันทึกการออกกำลังกาย กดปุ่ม + เพื่อเพิ่ม</div>`; return; }
+  list.innerHTML = filtered.map(w=>{
+    const cls = workoutTagCls[w.workout_type];
+    return `<div class="list-item">
+      <div class="li-icon" style="background:var(--${cls}-bg); color:var(--${cls}-ink);">${workoutIcon[w.workout_type]}</div>
+      <div class="li-main">
+        <span class="li-title">${workoutLabel[w.workout_type]}</span>
+        <span class="li-sub">${new Date(w.workout_date).toLocaleDateString('th-TH',{dateStyle:'medium'})} · ${w.duration_minutes||'-'} นาที ${w.distance_km?('· '+w.distance_km+' กม.'):''}</span>
+        ${w.note?`<span class="li-sub">${w.note}</span>`:''}
+      </div>
+      <button class="icon-btn" onclick="deleteWorkout('${w.id}')">${ICONS.trash}</button>
+    </div>`;
+  }).join('');
+};
+window.deleteWorkout = async function(id){ await sb.from('workout_logs').delete().eq('id', id); renderWorkoutList(); };
+
+// =====================================================================
+// FINANCE
+// =====================================================================
+async function renderFinance(){
+  const el = document.getElementById('tab-finance');
+  const now = new Date();
+  const y=now.getFullYear(), m=now.getMonth()+1;
+  const [{data:expenses}, {data:budgets}] = await Promise.all([
+    sb.from('expenses').select('*').eq('household_id',household.id).order('expense_date',{ascending:false}),
+    sb.from('monthly_budgets').select('*').eq('household_id',household.id).eq('year',y).eq('month',m)
+  ]);
+  const monthExpenses = (expenses||[]).filter(e=>{ const d=new Date(e.expense_date); return d.getFullYear()===y && d.getMonth()+1===m; });
+  const totalMonth = monthExpenses.reduce((s,e)=>s+Number(e.amount),0);
+  const paidByMe = monthExpenses.filter(e=>e.paid_by===currentUser.id).reduce((s,e)=>s+Number(e.amount),0);
+  const paidByPartner = partner ? monthExpenses.filter(e=>e.paid_by===partner.id).reduce((s,e)=>s+Number(e.amount),0) : 0;
+  const maxPaid = Math.max(paidByMe, paidByPartner, 1);
+
+  const myPendingAmt = (expenses||[]).filter(e=>!e.is_settled && e.paid_by===currentUser.id).reduce((s,e)=>s+Number(e.split_type==='equal'?e.amount/2:(e.partner_share||0)),0);
+  const myPendingCount = (expenses||[]).filter(e=>!e.is_settled && e.paid_by===currentUser.id).length;
+  const partnerPendingAmt = partner ? (expenses||[]).filter(e=>!e.is_settled && e.paid_by===partner.id).reduce((s,e)=>s+Number(e.split_type==='equal'?e.amount/2:(e.partner_share||0)),0) : 0;
+  const partnerPendingCount = partner ? (expenses||[]).filter(e=>!e.is_settled && e.paid_by===partner.id).length : 0;
+
+  const categoryBudgets = (budgets||[]).filter(b=>b.category!==null);
+  const overallBudget = (budgets||[]).find(b=>b.category===null);
+
+  const budgetRowsHTML = [
+    overallBudget ? budgetRowHTML('รวมทั้งหมด', totalMonth, overallBudget.budget_amount) : '',
+    ...categoryBudgets.map(b=>{
+      const spent = monthExpenses.filter(e=>e.category===b.category).reduce((s,e)=>s+Number(e.amount),0);
+      return budgetRowHTML(catLabel(b.category), spent, b.budget_amount);
+    })
+  ].join('');
+
+  el.innerHTML = `
+    <div class="page-header"><div class="page-title">${ICONS.wallet}<span>การเงิน</span></div></div>
+    <div class="finance-hero">
+      <div class="label">ยอดใช้จ่ายเดือนนี้</div>
+      <div class="total">฿${money(totalMonth)}</div>
+      <div class="paid-split">
+        <div class="paid-col"><div class="name">${profile?.display_name||'คุณ'} จ่ายไป</div><div class="amt">฿${money(paidByMe)}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(paidByMe/maxPaid)*100}%;"></div></div></div>
+        <div class="paid-col"><div class="name">${partner?.display_name||'อีกฝ่าย'} จ่ายไป</div><div class="amt">฿${money(paidByPartner)}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(paidByPartner/maxPaid)*100}%;"></div></div></div>
+      </div>
+      <div class="pending-row">
+        <div class="pending-card"><div class="lbl">${ICONS.clock} ${profile?.display_name||'คุณ'} รอเคลียร์</div><div class="amt">฿${money(myPendingAmt)}</div><div class="sub">${myPendingCount} รายการ</div></div>
+        <div class="pending-card"><div class="lbl">${ICONS.clock} ${partner?.display_name||'อีกฝ่าย'} รอเคลียร์</div><div class="amt">฿${money(partnerPendingAmt)}</div><div class="sub">${partnerPendingCount} รายการ</div></div>
+      </div>
+    </div>
+
+    <div class="section-row"><h3>งบประมาณรายเดือน</h3><a class="view-all" onclick="openBudgetModal()">+ เพิ่มหมวด</a></div>
+    <div class="card">${budgetRowsHTML || `<div class="empty-state">ยังไม่ได้ตั้งงบประมาณ</div>`}</div>
+
+    <div class="section-row"><h3>รายการล่าสุด</h3></div>
+    <div class="card"><div class="list" id="expense-list"></div></div>
+  `;
+
+  const list = document.getElementById('expense-list');
+  if(!expenses || expenses.length===0){ list.innerHTML = `<div class="empty-state">ยังไม่มีรายการ กดปุ่ม + เพื่อเพิ่ม</div>`; return; }
+  list.innerHTML = expenses.map(e=>{
+    const payerName = e.paid_by===currentUser.id ? (profile?.display_name||'คุณ') : (partner?.display_name||'อีกฝ่าย');
+    return `<div class="list-item">
+      <div class="li-icon tag ${e.category}" style="border-radius:11px; width:38px; height:38px;">${catLabel(e.category)[0]}</div>
+      <div class="li-main">
+        <span class="li-title">${e.description || catLabel(e.category)} · ฿${money(e.amount)}</span>
+        <span class="li-sub"><span class="avatar-badge">${initials(payerName)}</span>${payerName} · ${new Date(e.expense_date).toLocaleDateString('th-TH',{dateStyle:'medium'})} <span class="tag ${e.category}">${catLabel(e.category)}</span></span>
+      </div>
+      ${e.is_settled ? `<span class="icon-btn" style="color:var(--green-ok);">${ICONS.check}</span>` : `<button class="btn-small btn-mint" onclick="settleExpense('${e.id}')">เคลียร์</button>`}
+    </div>`;
+  }).join('');
+}
+function budgetRowHTML(label, spent, budget){
+  const pct = budget>0 ? Math.min(100,(spent/budget)*100) : 0;
+  const over = budget>0 && spent>budget;
+  return `<div class="budget-row">
+    <div class="top"><div class="name">${label}</div><div class="vals ${over?'over':''}">฿${money(spent)} / ฿${money(budget)}</div></div>
+    <div class="budget-track"><div class="budget-fill ${over?'over':''}" style="width:${pct}%;"></div></div>
+  </div>`;
+}
+window.settleExpense = async function(id){
+  await sb.from('expenses').update({ is_settled:true, settled_at:new Date().toISOString() }).eq('id', id);
+  renderFinance();
+};
+
+window.openBudgetModal = function(){
+  const backdrop = document.createElement('div');
+  backdrop.className='modal-backdrop'; backdrop.id='budget-modal-backdrop';
+  backdrop.onclick=(e)=>{ if(e.target===backdrop) backdrop.remove(); };
+  backdrop.innerHTML = `<div class="modal">
+    <h3>เพิ่มหมวดงบประมาณ</h3>
+    <div class="field"><label>หมวดหมู่</label>
+      <select id="bf-category">
+        <option value="food">ของกิน</option><option value="fitness">ฟิตเนส</option><option value="shopping">ช้อปปิ้ง</option>
+        <option value="utility">สาธารณูปโภค</option><option value="health">สุขภาพ</option><option value="transport">เดินทาง</option><option value="other">อื่นๆ</option>
+      </select>
+    </div>
+    <div class="field"><label>งบประมาณ (บาท/เดือน)</label><input id="bf-amount" type="number" min="0" step="1" /></div>
+    <div class="err" id="bf-err"></div>
+    <button class="btn btn-maroon" onclick="submitBudget()">บันทึก</button>
+  </div>`;
+  document.body.appendChild(backdrop);
+};
+window.submitBudget = async function(){
+  const amount = Number(document.getElementById('bf-amount').value);
+  if(!amount || amount<=0){ document.getElementById('bf-err').textContent='กรุณาใส่จำนวนเงิน'; return; }
+  const now = new Date();
+  await sb.from('monthly_budgets').upsert({
+    household_id:household.id, year:now.getFullYear(), month:now.getMonth()+1,
+    category: document.getElementById('bf-category').value, budget_amount: amount
+  }, { onConflict:'household_id,year,month,category' });
+  document.getElementById('budget-modal-backdrop').remove();
+  renderFinance();
+};
+
+// =====================================================================
+// PROFILE
+// =====================================================================
+function renderProfile(){
+  const el = document.getElementById('tab-profile');
+  el.innerHTML = `
+    <div class="page-header"><div class="page-title">${ICONS.smile}<span>โปรไฟล์</span></div></div>
+    <div class="profile-avatar">${initials(profile?.display_name)}</div>
+    <div class="profile-name">${profile?.display_name||''}</div>
+    <div class="profile-email">${currentUser?.email||''}</div>
+    <div class="card">
+      <h3 style="font-size:14.5px; margin-bottom:10px;">${household?.name||'บ้านของเรา'}</h3>
+      <div class="invite-box"><span class="muted">รหัสเชิญบ้าน</span><code>${household?.invite_code||''}</code></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:14.5px; margin-bottom:10px;">สมาชิกในบ้าน</h3>
+      <div class="list-item" style="border:none; padding:6px 0;">
+        <div class="avatar-badge" style="width:30px; height:30px; font-size:13px;">${initials(profile?.display_name)}</div>
+        <div class="li-main"><span class="li-title">${profile?.display_name} (คุณ)</span></div>
+      </div>
+      ${partner ? `<div class="list-item" style="border:none; padding:6px 0;">
+        <div class="avatar-badge" style="width:30px; height:30px; font-size:13px; background:var(--blue);">${initials(partner.display_name)}</div>
+        <div class="li-main"><span class="li-title">${partner.display_name}</span></div>
+      </div>` : `<div class="muted">ยังไม่มีคู่บ้าน — ส่งรหัสเชิญด้านบนให้อีกฝ่าย</div>`}
+    </div>
+    <button class="btn btn-outline" onclick="handleSignOut()">ออกจากระบบ</button>
+  `;
+}
+
+// =====================================================================
+// ADD MODAL (context-aware)
+// =====================================================================
+window.openAddModal = function(){
+  const backdrop = document.createElement('div');
+  backdrop.className='modal-backdrop'; backdrop.id='add-modal-backdrop';
+  backdrop.onclick=(e)=>{ if(e.target===backdrop) closeAddModal(); };
+  let inner='';
+  if(activeTab==='shopping') inner = shoppingFormHTML();
+  else if(activeTab==='calendar') inner = eventFormHTML();
+  else if(activeTab==='workout') inner = workoutFormHTML();
+  else if(activeTab==='finance') inner = expenseFormHTML();
+  backdrop.innerHTML = `<div class="modal">${inner}</div>`;
+  document.body.appendChild(backdrop);
+  if(activeTab==='workout') bindWorkoutTypeToggle();
+};
+window.closeAddModal = function(){ const b=document.getElementById('add-modal-backdrop'); if(b) b.remove(); };
+
+function shoppingFormHTML(){
+  return `<h3>เพิ่มของในลิสต์</h3>
+    <div class="field"><label>ชื่อของ</label><input id="f-name" placeholder="เช่น นมสด" /></div>
+    <div class="form-row">
+      <div class="field"><label>หมวดหมู่</label><select id="f-category"><option value="food">ของกิน</option><option value="household">ของใช้</option><option value="health">สุขภาพ</option></select></div>
+      <div class="field"><label>จำนวน</label><input id="f-qty" placeholder="เช่น 2 ถุง" /></div>
+    </div>
+    <div class="err" id="f-err"></div>
+    <button class="btn btn-maroon" onclick="submitShoppingItem()">เพิ่มลงลิสต์</button>`;
+}
+window.submitShoppingItem = async function(){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ document.getElementById('f-err').textContent='กรุณาใส่ชื่อของ'; return; }
+  await sb.from('shopping_items').insert({ household_id:household.id, name, category:document.getElementById('f-category').value, quantity:document.getElementById('f-qty').value.trim()||null, added_by:currentUser.id });
+  closeAddModal(); renderShopping();
+};
+
+function eventFormHTML(){
+  return `<h3>เพิ่มนัดหมาย</h3>
+    <div class="field"><label>หัวข้อ</label><input id="f-title" placeholder="เช่น ทานข้าวเย็นด้วยกัน" /></div>
+    <div class="form-row">
+      <div class="field"><label>วันเวลาเริ่ม</label><input id="f-start" type="datetime-local" /></div>
+      <div class="field"><label>ประเภท</label><select id="f-type"><option value="shared">ส่วนรวม</option><option value="personal">ส่วนตัว</option></select></div>
+    </div>
+    <div class="field"><label>สถานที่ (ถ้ามี)</label><input id="f-location" /></div>
+    <div class="err" id="f-err"></div>
+    <button class="btn btn-maroon" onclick="submitEvent()">บันทึกนัดหมาย</button>`;
+}
+window.submitEvent = async function(){
+  const title = document.getElementById('f-title').value.trim();
+  const start = document.getElementById('f-start').value;
+  if(!title || !start){ document.getElementById('f-err').textContent='กรุณาใส่หัวข้อและวันเวลา'; return; }
+  const type = document.getElementById('f-type').value;
+  await sb.from('calendar_events').insert({ household_id:household.id, title, event_type:type, owner_id:type==='personal'?currentUser.id:null, start_at:new Date(start).toISOString(), location:document.getElementById('f-location').value.trim()||null, created_by:currentUser.id });
+  closeAddModal(); renderCalendar();
+};
+
+function workoutFormHTML(){
+  return `<h3>บันทึกการออกกำลังกาย</h3>
+    <div class="chip-select-row" id="wo-type-group">
+      <div class="chip-select active" data-v="running">วิ่ง</div>
+      <div class="chip-select" data-v="brisk_walking">เดินเร็ว</div>
+      <div class="chip-select" data-v="bodyweight">Bodyweight</div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>วันที่</label><input id="f-date" type="date" value="${todayISO()}" /></div>
+      <div class="field"><label>ระยะเวลา (นาที)</label><input id="f-duration" type="number" min="1" /></div>
+    </div>
+    <div class="field" id="f-distance-wrap"><label>ระยะทาง (กม.)</label><input id="f-distance" type="number" step="0.1" min="0" /></div>
+    <div class="field"><label>โน้ตเพิ่มเติม (ไม่บังคับ)</label><textarea id="f-note"></textarea></div>
+    <div class="err" id="f-err"></div>
+    <button class="btn btn-maroon" onclick="submitWorkout()">บันทึก</button>`;
+}
+function bindWorkoutTypeToggle(){
+  const chips = document.querySelectorAll('#wo-type-group .chip-select');
+  chips.forEach(c=>c.onclick=()=>{
+    chips.forEach(x=>x.classList.remove('active')); c.classList.add('active');
+    document.getElementById('f-distance-wrap').style.display = c.dataset.v==='bodyweight' ? 'none' : 'flex';
+  });
+}
+window.submitWorkout = async function(){
+  const type = document.querySelector('#wo-type-group .chip-select.active').dataset.v;
+  const duration = document.getElementById('f-duration').value;
+  await sb.from('workout_logs').insert({
+    household_id:household.id, user_id:currentUser.id, workout_type:type,
+    workout_date: document.getElementById('f-date').value || todayISO(),
+    duration_minutes: duration?Number(duration):null,
+    distance_km: type!=='bodyweight' ? (Number(document.getElementById('f-distance').value)||null) : null,
+    note: document.getElementById('f-note').value.trim() || null
+  });
+  closeAddModal(); renderWorkout();
+};
+
+function expenseFormHTML(){
+  return `<h3>เพิ่มรายจ่าย</h3>
+    <div class="form-row">
+      <div class="field"><label>จำนวนเงิน (บาท)</label><input id="f-amount" type="number" min="0" step="0.01" /></div>
+      <div class="field"><label>วันที่</label><input id="f-date" type="date" value="${todayISO()}" /></div>
+    </div>
+    <div class="field"><label>รายละเอียด</label><input id="f-desc" placeholder="เช่น ค่ากับข้าว" /></div>
+    <div class="form-row">
+      <div class="field"><label>หมวดหมู่</label>
+        <select id="f-category">
+          <option value="food">ของกิน</option><option value="fitness">ฟิตเนส</option><option value="shopping">ช้อปปิ้ง</option>
+          <option value="utility">สาธารณูปโภค</option><option value="health">สุขภาพ</option><option value="transport">เดินทาง</option><option value="other">อื่นๆ</option>
+        </select>
+      </div>
+      <div class="field"><label>ใครจ่ายก่อน</label>
+        <select id="f-paidby"><option value="${currentUser.id}">คุณ</option>${partner?`<option value="${partner.id}">${partner.display_name}</option>`:''}</select>
+      </div>
+    </div>
+    <div class="field"><label>วิธีแบ่งจ่าย</label><select id="f-split"><option value="equal">หารครึ่ง</option><option value="full">คนจ่ายออกเองทั้งหมด</option></select></div>
+    <div class="err" id="f-err"></div>
+    <button class="btn btn-maroon" onclick="submitExpense()">บันทึกรายจ่าย</button>`;
+}
+window.submitExpense = async function(){
+  const amount = Number(document.getElementById('f-amount').value);
+  if(!amount || amount<=0){ document.getElementById('f-err').textContent='กรุณาใส่จำนวนเงิน'; return; }
+  await sb.from('expenses').insert({
+    household_id:household.id, paid_by:document.getElementById('f-paidby').value, amount,
+    category:document.getElementById('f-category').value, description:document.getElementById('f-desc').value.trim()||null,
+    expense_date:document.getElementById('f-date').value||todayISO(), split_type:document.getElementById('f-split').value, created_by:currentUser.id
+  });
+  closeAddModal(); renderFinance();
+};
+
+// =====================================================================
+// BOOTSTRAP
+// =====================================================================
+initSupabase();
+</script>
+</body>
+</html>
