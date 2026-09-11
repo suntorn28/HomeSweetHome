@@ -380,6 +380,7 @@ const ICONS = {
   list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
   grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
   smile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
 };
 
 const MOODS = [
@@ -975,7 +976,10 @@ function renderProfile(){
     <div class="profile-name">${profile?.display_name||''}</div>
     <div class="profile-email">${currentUser?.email||''}</div>
     <div class="card">
-      <h3 style="font-size:14.5px; margin-bottom:10px;">${household?.name||'บ้านของเรา'}</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="font-size:14.5px;">${household?.name||'บ้านของเรา'}</h3>
+        <button class="icon-btn" onclick="openEditHouseholdNameModal()">${ICONS.edit}</button>
+      </div>
       <div class="invite-box"><span class="muted">รหัสเชิญบ้าน</span><code>${household?.invite_code||''}</code></div>
     </div>
     <div class="card">
@@ -992,6 +996,33 @@ function renderProfile(){
     <button class="btn btn-outline" onclick="handleSignOut()">ออกจากระบบ</button>
   `;
 }
+
+window.openEditHouseholdNameModal = function(){
+  const backdrop = document.createElement('div');
+  backdrop.className='modal-backdrop'; backdrop.id='edit-hh-modal-backdrop';
+  backdrop.onclick=(e)=>{ if(e.target===backdrop) backdrop.remove(); };
+  backdrop.innerHTML = `<div class="modal">
+    <h3>แก้ไขชื่อบ้าน</h3>
+    <div class="field"><label>ชื่อบ้าน</label><input id="hh-edit-name" value="${(household?.name||'').replace(/"/g,'&quot;')}" /></div>
+    <div class="err" id="hh-edit-err"></div>
+    <button class="btn btn-maroon" onclick="submitHouseholdName()">บันทึก</button>
+  </div>`;
+  document.body.appendChild(backdrop);
+  document.getElementById('hh-edit-name').focus();
+};
+window.submitHouseholdName = async function(){
+  const name = document.getElementById('hh-edit-name').value.trim();
+  if(!name){ document.getElementById('hh-edit-err').textContent = 'กรุณาใส่ชื่อบ้าน'; return; }
+  try{
+    const { error } = await sb.from('households').update({ name }).eq('id', household.id);
+    if(error) throw error;
+    household.name = name;
+    document.getElementById('edit-hh-modal-backdrop').remove();
+    renderProfile();
+  }catch(e){
+    document.getElementById('hh-edit-err').textContent = e.message;
+  }
+};
 
 // =====================================================================
 // ADD MODAL (context-aware)
